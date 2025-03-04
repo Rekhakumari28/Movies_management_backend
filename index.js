@@ -24,15 +24,37 @@ app.get("/movies", async (req, res) => {
 });
 
 app.post("/movies", async (req, res) => {
-  const { movieTitle, director, genre } = req.body;
+  const { movieTitle, director, genre , releaseYear, actors, rating } = req.body;
 
   try {
-    const movies = new MyMovies({ movieTitle, director, genre });
+    const movies = new MyMovies({ movieTitle, director, genre , releaseYear, actors, rating });
     await movies.save();
     console.log(movies)
     res.status(201).json(movies);
   } catch (error) {
     res.status(500).json({ error: "Internal Server Error", error });
+  }
+});
+
+app.put("/movies/:id", async (req, res) => {
+  const movieId = req.params.id;
+  const updatedMovieData = req.body;
+
+  try {
+    const updatedMovie = await MyMovies.findByIdAndUpdate(
+      movieId,
+      updatedMovieData,
+      { new: true },
+    );
+
+    if (!updatedMovie) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
+    res.status(200).json(updatedMovie);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
